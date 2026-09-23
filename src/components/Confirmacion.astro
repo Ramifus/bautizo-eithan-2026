@@ -1,14 +1,19 @@
 ---
 // src/components/Confirmacion.astro
 // El ramo de lirios (florcentro.png), "Confirma tu Asistencia" en Great
-// Vibes dorada, un separador, una frase corta y un
+// Vibes dorada, un separador, el saludo con tres párrafos y un
 // solo botón dorado con el ícono de WhatsApp. El botón abre el chat con el
 // mensaje ya escrito, así el invitado solo tiene que tocar "enviar".
 
 // ── DATOS EDITABLES ───────────────────────────────────────────
 const titulo = ["Confirma tu", "Asistencia"];
-const frase =
-    "Tu presencia hará aún más especial el día de mi bautizo. Por favor, confírmame tu asistencia.";
+// El saludo y los párrafos, como en la despedida pero para el bautizo
+const saludo = "Querida familia y amigos";
+const parrafos = [
+    "Nos llena de felicidad poder compartir con ustedes el día de mi bautizo, un momento tan especial.",
+    "Con la esperanza de que hagamos de este día un recuerdo inolvidable.",
+    "Los esperamos con el corazón lleno de alegría, listos para celebrar con amor y crear memorias que permanezcan por siempre.",
+];
 const textoBoton = "Confirmar asistencia";
 
 // Número con código de país, sin + ni espacios (Bolivia: 591)
@@ -42,7 +47,10 @@ const enlace = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
             <span class="raya"></span>
         </div>
 
-        <p class="frase">{frase}</p>
+        <div class="frase">
+            <p class="saludo">{saludo}</p>
+            {parrafos.map((p) => <p class="parrafo">{p}</p>)}
+        </div>
 
         <a
             class="boton"
@@ -121,15 +129,28 @@ const enlace = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
         transform: rotate(45deg);
     }
 
-    /* La frase, derecha y en marrón cálido */
+    /* El saludo y los párrafos, derechos y en marrón cálido */
     .frase {
         margin-top: 5cqw;
-        max-width: 70cqw;
+        max-width: 74cqw;
         font-family: "Cormorant Garamond", "Times New Roman", serif;
         font-weight: 600;
-        font-size: 5cqw;
+        font-size: 4.8cqw;
         line-height: 1.55;
         color: #5a3f22;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .saludo {
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        font-size: 8.5cqw;
+        line-height: 1.2;
+        color: #b8742a;
+    }
+
+    .parrafo {
+        margin-top: 3.5cqw;
     }
 
     /*
@@ -220,7 +241,7 @@ const enlace = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
         const flores = bloque.querySelector(".flores");
         const separador = bloque.querySelector(".separador");
         const renglones = bloque.querySelectorAll(".titulo span");
-        const frase = bloque.querySelector(".frase");
+        const frase = bloque.querySelectorAll(".frase > p");
         const boton = bloque.querySelector(".boton");
 
         gsap.timeline({
@@ -266,7 +287,13 @@ const enlace = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
             .fromTo(
                 frase,
                 { opacity: 0, y: 14 },
-                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                },
                 1.3,
             )
             // El botón aparece con un rebote suave
@@ -279,7 +306,7 @@ const enlace = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
                     duration: 0.7,
                     ease: "back.out(1.8)",
                 },
-                1.7,
+                2.4,
             );
     });
 </script>
