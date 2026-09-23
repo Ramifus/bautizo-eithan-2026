@@ -30,7 +30,14 @@ const tituloPreview = 'Bautizo de Eithan · 31 de octubre';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="only light" />
+    <!--
+       "light dark" y no "only light": Samsung Internet ignora el only
+       light y oscurece la invitación entera con su modo oscuro. Si la
+       página dice que ya tiene tema oscuro propio (ver el @media
+       prefers-color-scheme de abajo), ni Samsung ni Chrome la oscurecen.
+       Ese "tema oscuro" es el mismo diseño blanco de siempre.
+    -->
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/png" href="/imagenes/paloma4.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -78,12 +85,20 @@ const tituloPreview = 'Bautizo de Eithan · 31 de octubre';
         box-sizing: border-box;
       }
 
-      /* Forzar modo claro y evitar dark mode del navegador */
+      /*
+         Modo oscuro: la página se declara "clara y oscura" para que el
+         navegador no le aplique su oscurecido automático, y después los
+         dos temas se pintan igual, en blanco. Por eso el color del texto
+         y los fondos van escritos a mano: con "light dark" el navegador
+         en modo oscuro pondría letra blanca y fondo negro por defecto.
+      */
       html {
         width: 100%;
         height: 100%;
         overflow-x: hidden;
-        color-scheme: only light;
+        color-scheme: light dark;
+        background-image: linear-gradient(#e9e4dd, #e9e4dd);
+        color: #2e2e2e;
       }
 
       body {
@@ -92,9 +107,27 @@ const tituloPreview = 'Bautizo de Eithan · 31 de octubre';
         width: 100%;
         min-height: 100vh;
         overflow-x: hidden;
-        color-scheme: only light;
         /* Fuera de la columna móvil (tablet / PC) */
         background-color: #e9e4dd;
+        background-image: linear-gradient(#e9e4dd, #e9e4dd);
+        color: #2e2e2e;
+      }
+
+      /*
+         El "tema oscuro" propio: es el mismo claro. Que exista esta regla
+         es lo que le avisa a Samsung Internet que no oscurezca la página.
+      */
+      @media (prefers-color-scheme: dark) {
+        html,
+        body {
+          background-color: #e9e4dd;
+          background-image: linear-gradient(#e9e4dd, #e9e4dd);
+          color: #2e2e2e;
+        }
+        main {
+          background-color: #ffffff;
+          background-image: linear-gradient(#ffffff, #ffffff);
+        }
       }
 
       /* La invitación SIEMPRE se ve como celular: columna centrada */
