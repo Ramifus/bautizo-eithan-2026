@@ -1,0 +1,454 @@
+---
+// src/components/Itinerario.astro
+// Tarjeta blanca en arco (redonda arriba), con sombra suave:
+// "Itinerario de Bautizo" arriba y, debajo, la línea de tiempo. Un
+// eje dorado al centro con un corazón por momento; de un lado el ícono y
+// del otro el nombre con la hora, alternando izquierda y derecha.
+//
+// Todas las imágenes salen de /imagenes. Son íconos negros de línea y
+// se pasan a dorado con un filtro ("dorar: true").
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo1 = "Itinerario";
+const titulo2 = "de";
+const titulo3 = "Bautizo";
+
+// El primero lleva el ícono a la izquierda, el segundo a la derecha, y
+// así alternando. "dorar: true" pasa a dorado un ícono negro.
+const momentos = [
+    { nombre: "Misa de Bendición y Bautismo", hora: "4:00 pm", imagen: "iglesia3.png", ancho: 512, alto: 512, dorar: true },
+    { nombre: "Recepción y Bienvenida a los Invitados", hora: "5:00 pm", imagen: "recepcion2.png", ancho: 512, alto: 512, dorar: true },
+    { nombre: "Tradicional Cueca con los Padrinos", hora: "7:00 pm", imagen: "musica2.png", ancho: 512, alto: 512, dorar: true },
+    { nombre: "Tradicional Rutucha (Corte de Cabello)", hora: "8:00 pm", imagen: "tijera.png", ancho: 512, alto: 512, dorar: true },
+    { nombre: "Apagón de Velas y Apertura de Pista", hora: "10:00 pm", imagen: "vela.png", ancho: 512, alto: 512, dorar: true },
+    { nombre: "Cierre de Fiesta y Agradecimientos", hora: "2:00 am", imagen: "hora.png", ancho: 512, alto: 512, dorar: true },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="itinerario" class="seccion">
+    <div id="tarjeta-itinerario" class="tarjeta">
+        <div class="titulo">
+            <p class="titulo-cursiva">{titulo1}</p>
+            <p class="titulo-de">{titulo2}</p>
+            <p class="titulo-cursiva titulo-abajo">{titulo3}</p>
+            <!-- Separador: raya · rombo · raya -->
+            <div class="separador" aria-hidden="true">
+                <span class="raya"></span>
+                <span class="rombo"></span>
+                <span class="raya"></span>
+            </div>
+        </div>
+
+        <div class="linea-tiempo">
+            <span class="eje" aria-hidden="true"></span>
+
+            {
+                momentos.map((m, i) => (
+                    <div class={`momento ${i % 2 === 0 ? "icono-izq" : "icono-der"}`}>
+                        <div class="lado lado-icono" aria-hidden="true">
+                            <!-- El ícono va dentro de una medalla redonda -->
+                            <span class="medalla">
+                                <img
+                                    src={`/imagenes/${m.imagen}`}
+                                    alt=""
+                                    width={m.ancho}
+                                    height={m.alto}
+                                    class={m.dorar ? "icono dorado" : "icono"}
+                                />
+                            </span>
+                        </div>
+
+                        <span class="punto" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 20s-7-4.4-7-9.2A3.9 3.9 0 0 1 12 8.6a3.9 3.9 0 0 1 7 2.2C19 15.6 12 20 12 20z"
+                                    fill="#ffffff"
+                                />
+                            </svg>
+                        </span>
+
+                        <div class="lado lado-texto">
+                            <p class="nombre">{m.nombre}</p>
+                            <p class="hora">{m.hora}</p>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8% 0;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    /*
+       Arco arriba (radio = medio ancho) y esquinas apenas redondeadas
+       abajo. Blanco declarado como degradado (imagen) para que el modo
+       oscuro forzado lo respete.
+    */
+    .tarjeta {
+        width: 86cqw;
+        margin: 0 auto;
+        padding: 16cqw 3cqw 12cqw;
+        border-radius: 43cqw 43cqw 8cqw 8cqw;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow:
+            0 12px 26px rgba(0, 0, 0, 0.14),
+            0 2px 6px rgba(0, 0, 0, 0.06);
+        color: #3a2a18;
+    }
+
+    /* ── Título ─────────────────────────────────────────────── */
+    .titulo {
+        text-align: center;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .titulo-cursiva {
+        font-family: "Great Vibes", cursive;
+        font-size: 13cqw;
+        line-height: 1.05;
+        color: #b8742a;
+    }
+
+    .titulo-de {
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 4.4cqw;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        line-height: 1.2;
+        color: #b8742a;
+    }
+
+    .titulo-abajo {
+        margin-top: -1cqw;
+    }
+
+    /* ── Separador bajo el título: raya · rombo · raya ── */
+    .separador {
+        margin-top: 4cqw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3cqw;
+    }
+    .raya {
+        display: block;
+        width: 16cqw;
+        height: 1px;
+        background-image: linear-gradient(90deg, transparent, #c07d2c);
+    }
+    .raya:last-child {
+        background-image: linear-gradient(90deg, #c07d2c, transparent);
+    }
+    .rombo {
+        display: block;
+        width: 2cqw;
+        height: 2cqw;
+        border: 1px solid #c07d2c;
+        transform: rotate(45deg);
+    }
+
+    /* ── Línea de tiempo ────────────────────────────────────── */
+    .linea-tiempo {
+        position: relative;
+        margin-top: 9cqw;
+    }
+
+    /* El eje: dorado, que se desvanece arriba y abajo */
+    .eje {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        margin-left: -1px;
+        background-image: linear-gradient(
+            transparent,
+            #d4a263 8%,
+            #b8742a 50%,
+            #d4a263 92%,
+            transparent
+        );
+        transform-origin: top center;
+    }
+
+    /*
+       Tres columnas: lado izquierdo, el punto sobre el eje y lado
+       derecho. Los que llevan el ícono a la derecha dan vuelta el orden.
+    */
+    .momento {
+        position: relative;
+        display: grid;
+        /* minmax(0, 1fr): sin esto una palabra larga ensancha su lado y
+           se monta sobre el eje */
+        grid-template-columns: minmax(0, 1fr) 7cqw minmax(0, 1fr);
+        align-items: center;
+        min-height: 24cqw;
+    }
+    .momento + .momento {
+        margin-top: 6cqw;
+    }
+
+    /*
+       Cada lado centra lo suyo: el ícono al medio de su mitad y el texto
+       también, así las dos columnas quedan parejas a cada lado del eje.
+    */
+    .lado {
+        grid-row: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 1cqw;
+    }
+    .icono-izq .lado-icono,
+    .icono-der .lado-texto {
+        grid-column: 1;
+    }
+    .icono-izq .lado-texto,
+    .icono-der .lado-icono {
+        grid-column: 3;
+    }
+
+    /*
+       El punto: corazón blanco sobre dorado, con un halo que late
+       despacio alrededor.
+    */
+    .punto {
+        position: relative;
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 6.4cqw;
+        height: 6.4cqw;
+        border-radius: 50%;
+        background-image: linear-gradient(135deg, #d9a35e, #b06f28);
+        box-shadow:
+            0 0 0 1.2cqw #ffffff,
+            0 3px 8px rgba(150, 90, 30, 0.35);
+    }
+    .punto::after {
+        content: "";
+        position: absolute;
+        inset: -1.2cqw;
+        border-radius: 50%;
+        border: 1px solid #c99155;
+        animation: latido 2.4s ease-out infinite;
+    }
+    .punto svg {
+        position: relative;
+        width: 3.6cqw;
+        height: 3.6cqw;
+    }
+
+    @keyframes latido {
+        0% {
+            transform: scale(1);
+            opacity: 0.9;
+        }
+        100% {
+            transform: scale(1.7);
+            opacity: 0;
+        }
+    }
+
+    /*
+       La medalla: círculo crema con doble aro dorado (uno fino por
+       fuera, uno punteado por dentro) y sombra suave. El ícono va al
+       centro.
+    */
+    .medalla {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22cqw;
+        height: 22cqw;
+        border-radius: 50%;
+        border: 1.5px solid #d4a263;
+        background-image: radial-gradient(
+            circle at 35% 30%,
+            #ffffff 0%,
+            #fdf6ec 55%,
+            #f6e6cf 100%
+        );
+        box-shadow: 0 6px 14px rgba(150, 90, 30, 0.18);
+    }
+    .medalla::before {
+        content: "";
+        position: absolute;
+        inset: 1.4cqw;
+        border-radius: 50%;
+        border: 1px dashed rgba(184, 116, 42, 0.45);
+    }
+
+    /* Los íconos negros pasan al dorado (#b8742a) con el filtro */
+    .icono {
+        position: relative;
+        display: block;
+        width: 11cqw;
+        height: auto;
+    }
+    .icono.dorado {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(62%)
+            saturate(560%) hue-rotate(346deg) brightness(92%) contrast(88%);
+    }
+
+    .nombre {
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 3.3cqw;
+        line-height: 1.45;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    /* La hora como una etiqueta dorada: es lo que más se busca */
+    .hora {
+        margin-top: 2.6cqw;
+        padding: 1.6cqw 4cqw;
+        border-radius: 999px;
+        background-image: linear-gradient(135deg, #d9a35e, #b06f28);
+        box-shadow: 0 4px 10px rgba(150, 90, 30, 0.28);
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 4.4cqw;
+        line-height: 1;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #ffffff;
+        white-space: nowrap;
+        /* Cifras parejas: la Cormorant las dibuja "antiguas" */
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum" 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .punto::after {
+            animation: none;
+            opacity: 0;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-itinerario");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const cursivas = tarjeta.querySelectorAll(".titulo-cursiva");
+        const de = tarjeta.querySelector(".titulo-de");
+        const eje = tarjeta.querySelector(".eje");
+        const momentos = Array.from(tarjeta.querySelectorAll(".momento"));
+
+        // ── La tarjeta y el título ──────────────────────────────
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 82%",
+                toggleActions: "play none none reset",
+            },
+        })
+            .fromTo(
+                tarjeta,
+                { opacity: 0, y: 40, scale: 0.95 },
+                { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: "power2.out" },
+            )
+            // Las dos cursivas se escriben de izquierda a derecha. El
+            // recorte tiene margen para no morder los rulos.
+            .fromTo(
+                cursivas,
+                { opacity: 0, clipPath: "inset(-30% 100% -30% -10%)" },
+                {
+                    opacity: 1,
+                    clipPath: "inset(-30% -10% -30% -10%)",
+                    duration: 1.1,
+                    stagger: 0.5,
+                    ease: "power2.inOut",
+                },
+                0.35,
+            )
+            .fromTo(
+                de,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.6 },
+                0.8,
+            )
+            // El separador se abre desde el centro
+            .fromTo(
+                tarjeta.querySelector(".separador"),
+                { opacity: 0, scaleX: 0.4 },
+                { opacity: 1, scaleX: 1, duration: 0.8, ease: "power2.out" },
+                1.3,
+            );
+
+        // ── El eje se dibuja a medida que se baja ───────────────
+        gsap.fromTo(
+            eje,
+            { scaleY: 0 },
+            {
+                scaleY: 1,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".linea-tiempo",
+                    start: "top 75%",
+                    end: "bottom 70%",
+                    scrub: 0.6,
+                },
+            },
+        );
+
+        // ── Cada momento entra cuando llega a la pantalla ───────
+        momentos.forEach((momento) => {
+            const izq = momento.classList.contains("icono-izq");
+            const icono = momento.querySelector(".lado-icono");
+            const texto = momento.querySelector(".lado-texto");
+            const punto = momento.querySelector(".punto");
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: momento,
+                    start: "top 82%",
+                    toggleActions: "play none none reset",
+                },
+            })
+                .fromTo(
+                    punto,
+                    { opacity: 0, scale: 0 },
+                    { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" },
+                )
+                .fromTo(
+                    icono,
+                    { opacity: 0, x: izq ? -24 : 24 },
+                    { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" },
+                    0.1,
+                )
+                .fromTo(
+                    texto,
+                    { opacity: 0, x: izq ? 24 : -24 },
+                    { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" },
+                    0.2,
+                );
+        });
+    });
+</script>

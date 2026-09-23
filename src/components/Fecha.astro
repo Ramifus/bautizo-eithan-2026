@@ -1,0 +1,254 @@
+---
+// src/components/Fecha.astro
+// Tarjeta dorada con forma de arco (redonda arriba y abajo): la paloma
+// blanca, "Mi bautizo", el nombre en cursiva blanca, la frase y la fecha
+// en tres partes —día · número · mes— con el lugar arriba del número.
+//
+// La paloma es paloma2.png.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Mi bautizo";
+const nombre = "Eithan";
+const frase = [
+    "Queremos compartir",
+    "nuestra felicidad",
+    "este día tan especial",
+];
+
+const diaSemana = "Sábado";
+const diaNumero = "31";
+const mes = "Octubre";
+const anio = "2026";
+const lugar = "CBBA";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="fecha" class="seccion">
+    <div id="tarjeta-fecha" class="tarjeta">
+        <img
+            src="/imagenes/paloma2.png"
+            alt=""
+            width="1662"
+            height="946"
+            aria-hidden="true"
+            class="paloma"
+        />
+
+        <p class="titulo">{titulo}</p>
+        <p class="nombre">{nombre}</p>
+        <p class="frase">{frase.map((r) => <span>{r}</span>)}</p>
+
+        <!-- Fecha: día · número · mes -->
+        <div class="fecha">
+            <span class="lado">{diaSemana}</span>
+            <div class="arco">
+                <span class="lugar">{lugar}</span>
+                <span class="numero">{diaNumero}</span>
+                <span class="anio">{anio}</span>
+            </div>
+            <span class="lado">{mes}</span>
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 8% 0;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        container-type: inline-size;
+    }
+
+    /*
+       Forma de arco: el radio es la mitad del ancho, así arriba y abajo
+       quedan semicírculos. El dorado va como degradado (imagen), que el
+       modo oscuro forzado respeta.
+    */
+    .tarjeta {
+        position: relative;
+        width: 80cqw;
+        margin: 0 auto;
+        padding: 12cqw 0 24cqw;
+        /* Las rayas de la fecha se cortan justo en el borde curvo */
+        overflow: hidden;
+        border-radius: 40cqw;
+        background-image: radial-gradient(
+            ellipse at 50% 30%,
+            #ffd89e 0%,
+            #f2bf78 45%,
+            #e3a35a 100%
+        );
+        box-shadow:
+            0 14px 28px rgba(150, 95, 30, 0.28),
+            0 3px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #3a2a18;
+    }
+
+    .paloma {
+        display: block;
+        width: 28cqw;
+        height: auto;
+        /* Una sombra suave que le da volumen */
+        filter: drop-shadow(0 3px 4px rgba(120, 70, 20, 0.3));
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .titulo {
+        margin-top: 5cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 7.6cqw;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .nombre {
+        margin-top: 5cqw;
+        font-family: "Great Vibes", cursive;
+        font-size: 15cqw;
+        line-height: 1.15;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(120, 70, 20, 0.3);
+    }
+
+    .frase {
+        margin-top: 5cqw;
+        display: flex;
+        flex-direction: column;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 6cqw;
+        line-height: 1.6;
+    }
+
+    /* ── Fecha ──────────────────────────────────────────────── */
+    .fecha {
+        width: 100%;
+        margin-top: 6cqw;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Los lados llevan una raya blanca arriba y abajo hasta el borde */
+    .lado {
+        flex: 1;
+        padding: 2cqw 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 4.3cqw;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .arco {
+        width: 25cqw;
+        margin: 0 2cqw;
+        padding: 3.5cqw 0 3cqw;
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        border-radius: 12.5cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #ffffff;
+        /* Números parejos: la Cormorant los dibuja "antiguos", con el 3
+           colgando y el 1 chiquito */
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum" 1;
+    }
+
+    .lugar {
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 4.4cqw;
+        line-height: 1;
+    }
+
+    .numero {
+        margin-top: 1cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 14cqw;
+        line-height: 1;
+    }
+
+    .anio {
+        margin-top: 1cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 5.2cqw;
+        line-height: 1;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-fecha");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const paloma = tarjeta.querySelector(".paloma");
+        const textos = tarjeta.querySelectorAll(
+            ".titulo, .nombre, .frase, .fecha",
+        );
+
+        const linea = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 82%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        linea
+            // La tarjeta sube y se asienta
+            .fromTo(
+                tarjeta,
+                { opacity: 0, y: 40, scale: 0.94 },
+                { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: "power2.out" },
+            )
+            // La paloma baja volando
+            .fromTo(
+                paloma,
+                { opacity: 0, y: -24, rotate: -12, scale: 0.8 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotate: 0,
+                    scale: 1,
+                    duration: 1,
+                    ease: "back.out(1.8)",
+                },
+                0.4,
+            )
+            .fromTo(
+                textos,
+                { opacity: 0, y: 14 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.14,
+                    ease: "power2.out",
+                },
+                0.6,
+            );
+    });
+</script>

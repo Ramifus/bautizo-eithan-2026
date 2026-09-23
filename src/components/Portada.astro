@@ -1,0 +1,409 @@
+---
+// src/components/Portada.astro - Portada tipo sobre: dos solapas blancas,
+// una a cada lado, que se juntan en el centro donde va el sello dorado
+// (/imagenes/boton.png). Al pulsar el sello las solapas se abren hacia los
+// costados como dos puertas y aparece NombresFlores.
+// La melodía arranca al tocar el sello (ver abrirTodo, en el script): es
+// el único momento en que el navegador deja sonar un audio, porque hace
+// falta un gesto de la persona. Desde ahí la maneja BotonMusica.astro.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const llamada = ["Dale click", "para", "ingresar"];
+// ──────────────────────────────────────────────────────────────
+---
+
+<!-- CAPA BLANCA DE TRANSICIÓN — tapa el fondo del layout durante el fade -->
+<div
+    id="capa-blanca"
+    style="
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(#ffffff, #ffffff);
+    z-index: 8499;
+    opacity: 1;
+    pointer-events: none;
+"
+>
+</div>
+
+<!--
+   La portada va por debajo del botón flotante de música (z 9000) para que
+   el control siga accesible mientras la portada se desvanece.
+-->
+<section
+    class="fixed inset-0 w-full h-screen flex justify-center z-[8500]"
+    id="portada-section"
+    style="background-image: linear-gradient(#ffffff, #ffffff);"
+>
+    <div class="marco" id="portada-marco">
+        <!-- Solapa izquierda -->
+        <div class="solapa solapa-izq" id="solapa-izq" aria-hidden="true">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="papel-izq" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0" stop-color="#f4f4f4"></stop>
+                        <stop offset="0.7" stop-color="#fdfdfd"></stop>
+                        <stop offset="1" stop-color="#ffffff"></stop>
+                    </linearGradient>
+                </defs>
+                <path
+                    d="M0 0 L8 0 C 22 20, 40 40, 46 50 C 40 60, 22 80, 8 100 L0 100 Z"
+                    fill="url(#papel-izq)"></path>
+            </svg>
+        </div>
+
+        <!-- Solapa derecha -->
+        <div class="solapa solapa-der" id="solapa-der" aria-hidden="true">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="papel-der" x1="1" y1="0" x2="0" y2="0">
+                        <stop offset="0" stop-color="#f4f4f4"></stop>
+                        <stop offset="0.7" stop-color="#fdfdfd"></stop>
+                        <stop offset="1" stop-color="#ffffff"></stop>
+                    </linearGradient>
+                </defs>
+                <path
+                    d="M100 0 L92 0 C 78 20, 60 40, 54 50 C 60 60, 78 80, 92 100 L100 100 Z"
+                    fill="url(#papel-der)"></path>
+            </svg>
+        </div>
+
+        <!-- Sello dorado + llamada -->
+        <div class="centro" id="portada-centro">
+            <button
+                id="btn-sobre"
+                type="button"
+                aria-label="Abrir la invitación"
+                class="sello"
+            >
+                <img
+                    src="/imagenes/boton.png"
+                    alt=""
+                    width="200"
+                    height="200"
+                    aria-hidden="true"
+                />
+            </button>
+            <p id="llamada-portada" class="llamada">
+                {llamada.map((l) => <span>{l}</span>)}
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    :global(body.portada-activa) {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #capa-blanca {
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── Marco: columna móvil, nunca se estira en tablet / PC ── */
+    .marco {
+        position: relative;
+        width: 100%;
+        max-width: 480px;
+        height: 100%;
+        overflow: hidden;
+        background-image: linear-gradient(
+            180deg,
+            #f7f7f7 0%,
+            #ffffff 45%,
+            #ffffff 55%,
+            #f7f7f7 100%
+        );
+        perspective: 1400px;
+    }
+
+    /* ── Solapas ─────────────────────────────────────────────── */
+    .solapa {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        pointer-events: none;
+        will-change: transform;
+        /* La sombra sigue el borde curvo porque es drop-shadow */
+        filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.16))
+            drop-shadow(0 2px 2px rgba(0, 0, 0, 0.08));
+    }
+    .solapa svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .solapa-izq {
+        left: 0;
+        transform-origin: left center;
+    }
+    .solapa-der {
+        right: 0;
+        transform-origin: right center;
+    }
+
+    /* ── Sello y llamada ─────────────────────────────────────── */
+    .centro {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        /* Medio sello hacia arriba: su centro cae justo en la unión */
+        margin-top: -3.4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 2;
+    }
+
+    .sello {
+        width: 6.8rem;
+        height: 6.8rem;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        border-radius: 50%;
+        filter: drop-shadow(0 3px 5px rgba(90, 50, 10, 0.35));
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+        /* Se mece apenas cada tanto, como pidiendo que lo toquen. No
+           cambia de tamaño: agrandarse queda solo para cuando lo tocan */
+        animation: mecer 3s ease-in-out infinite;
+    }
+
+    /*
+       Dos ondas doradas que salen del sello y se desvanecen, una detrás
+       de la otra: invitan a tocar sin que el sello mismo crezca.
+    */
+    .sello::before,
+    .sello::after {
+        content: "";
+        position: absolute;
+        inset: 6%;
+        border-radius: 50%;
+        border: 2px solid rgba(197, 138, 60, 0.7);
+        animation: onda 2.4s ease-out infinite;
+        /* Detrás del sello: el botón tiene filter, así que el -1 no se
+           escapa de él */
+        z-index: -1;
+        pointer-events: none;
+    }
+    .sello::after {
+        animation-delay: 1.2s;
+    }
+
+    @keyframes onda {
+        0% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1.8);
+            opacity: 0;
+        }
+    }
+
+    @keyframes mecer {
+        0%,
+        70%,
+        100% {
+            rotate: 0deg;
+        }
+        76% {
+            rotate: -8deg;
+        }
+        82% {
+            rotate: 7deg;
+        }
+        88% {
+            rotate: -4deg;
+        }
+        94% {
+            rotate: 2deg;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .sello,
+        .sello::before,
+        .sello::after {
+            animation: none;
+        }
+    }
+    .sello img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        user-select: none;
+    }
+    .sello:focus-visible {
+        outline: 2px solid #c58a3c;
+        outline-offset: 4px;
+    }
+
+
+    .llamada {
+        margin-top: 6.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        /* Dorado más oscuro: en celular el claro se perdía sobre el blanco */
+        color: #9c6418;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+        text-align: center;
+    }
+
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.add("portada-activa");
+
+            const boton = document.getElementById("btn-sobre");
+            const solapaIzq = document.getElementById("solapa-izq");
+            const solapaDer = document.getElementById("solapa-der");
+            const llamada = document.getElementById("llamada-portada");
+            const seccion = document.getElementById("portada-section");
+            const capaBlanca = document.getElementById("capa-blanca");
+            if (!boton || !solapaIzq || !solapaDer) return;
+
+            let abriendo = false;
+
+            // ── Entrada: las solapas se cierran y aparece el sello ──
+            gsap.set(solapaIzq, { xPercent: -12, opacity: 0 });
+            gsap.set(solapaDer, { xPercent: 12, opacity: 0 });
+            // El sello solo aparece (sin crecer): queda quieto en su tamaño
+            // hasta que lo tocan
+            gsap.set(boton, { opacity: 0 });
+            if (llamada) gsap.set(llamada, { opacity: 0, y: 8 });
+
+            gsap.timeline({ delay: 0.25 })
+                .to([solapaIzq, solapaDer], {
+                    xPercent: 0,
+                    opacity: 1,
+                    duration: 1.1,
+                    ease: "power3.out",
+                })
+                .to(
+                    boton,
+                    {
+                        opacity: 1,
+                        duration: 0.8,
+                        ease: "power2.out",
+                    },
+                    0.7,
+                )
+                .to(
+                    llamada,
+                    { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+                    1.0,
+                );
+
+            // ── Suelta el scroll y deja la invitación arrancada en el
+            //    sobre de NombresFlores, su primera sección.
+            const abrirInvitacion = () => {
+                document.body.classList.remove("portada-activa");
+                document.body.style.overflow = "auto";
+
+                const destino = document.getElementById("sobre-novios");
+                if (destino) {
+                    destino.scrollIntoView({ block: "start" });
+                } else {
+                    window.scrollTo({ top: 0 });
+                }
+
+                // Aviso para que NombresFlores recién ahora arranque su
+                // entrada (si no, se dispararía tapado por la portada).
+                (window as any).portadaAbierta = true;
+                window.dispatchEvent(new Event("portada-abierta"));
+            };
+
+            // ── Abrir: el sello se va y las solapas se abren como puertas
+            const abrirTodo = () => {
+                if (abriendo) return;
+                abriendo = true;
+
+                // La música tiene que arrancar en este gesto de la persona
+                const yaExiste = (window as any).audioGlobal as
+                    | HTMLAudioElement
+                    | undefined;
+                const melodia = yaExiste ?? new Audio("/musica/melodia2.mp3");
+                melodia.loop = true;
+                melodia.volume = 0.65;
+                (window as any).audioGlobal = melodia;
+                melodia.play().catch(() => {});
+
+                gsap.timeline()
+                    // Recién al tocarlo: el sello se agranda y desaparece
+                    .to(boton, {
+                        scale: 1.5,
+                        opacity: 0,
+                        duration: 0.6,
+                        ease: "power2.in",
+                    })
+                    .to(
+                        llamada,
+                        { opacity: 0, duration: 0.35, ease: "power2.in" },
+                        0,
+                    );
+
+                // Y en paralelo se abren las solapas
+                gsap.timeline()
+                    // Una puerta a cada lado
+                    .to(
+                        solapaIzq,
+                        {
+                            xPercent: -100,
+                            rotateY: 35,
+                            duration: 1.3,
+                            ease: "power3.inOut",
+                        },
+                        0.3,
+                    )
+                    .to(
+                        solapaDer,
+                        {
+                            xPercent: 100,
+                            rotateY: -35,
+                            duration: 1.3,
+                            ease: "power3.inOut",
+                        },
+                        0.3,
+                    )
+                    .to(
+                        seccion,
+                        {
+                            opacity: 0,
+                            duration: 0.5,
+                            ease: "power2.in",
+                            onStart: abrirInvitacion,
+                            onComplete: () => {
+                                seccion?.remove();
+                                gsap.to(capaBlanca, {
+                                    opacity: 0,
+                                    duration: 0.4,
+                                    ease: "power2.out",
+                                    onComplete: () => capaBlanca?.remove(),
+                                });
+                            },
+                        },
+                        1.2,
+                    );
+            };
+
+            boton.addEventListener("click", abrirTodo);
+        });
+    }
+</script>

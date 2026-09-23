@@ -1,0 +1,199 @@
+---
+// src/components/CeremoniaReligiosa.astro
+// Tarjeta blanca alta, muy redondeada arriba y abajo, con sombra suave:
+// el dibujo de la iglesia (iglesia.png), "Iglesia" en Great Vibes dorada,
+// la hora grande, el nombre de la capilla y el botón dorado del mapa.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Iglesia";
+const hora = "4:00 pm";
+const lugar = ["Capilla", "Señor de Exaltación - Chiñata"];
+const textoBoton = "Ver ubicación";
+const mapa = "https://maps.app.goo.gl/CgKCp2kZykroPRzG7";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="ceremonia-religiosa" class="seccion">
+    <div id="tarjeta-ceremonia" class="tarjeta">
+        <img
+            src="/imagenes/iglesia.png"
+            alt=""
+            width="1313"
+            height="1198"
+            aria-hidden="true"
+            class="dibujo"
+        />
+
+        <p class="titulo">{titulo}</p>
+        <p class="hora">{hora}</p>
+        <p class="lugar">{lugar.map((r) => <span>{r}</span>)}</p>
+
+        <!--
+           Enlace de verdad y no un texto con click: se puede abrir en otra
+           pestaña y el lector de pantalla lo anuncia como enlace.
+        -->
+        <a
+            class="boton"
+            href={mapa}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver la ubicación de la capilla en el mapa"
+        >
+            {textoBoton}
+        </a>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8% 0;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    /* Esquinas muy redondeadas: casi un arco arriba y abajo */
+    .tarjeta {
+        width: 80cqw;
+        margin: 0 auto;
+        padding: 12cqw 6cqw 14cqw;
+        border-radius: 30cqw;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow:
+            0 12px 26px rgba(0, 0, 0, 0.14),
+            0 2px 6px rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: #2e2e2e;
+    }
+
+    .dibujo {
+        display: block;
+        width: 30cqw;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .titulo {
+        margin-top: 2cqw;
+        font-family: "Great Vibes", cursive;
+        font-size: 12cqw;
+        line-height: 1.1;
+        color: #b8742a;
+    }
+
+    .hora {
+        margin-top: 3cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 9cqw;
+        line-height: 1;
+        /* Cifras parejas: la Cormorant las dibuja "antiguas" */
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum" 1;
+    }
+
+    .lugar {
+        margin-top: 3cqw;
+        display: flex;
+        flex-direction: column;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 6.1cqw;
+        line-height: 1.4;
+    }
+
+    .boton {
+        margin-top: 6cqw;
+        display: inline-block;
+        padding: 3cqw 8cqw;
+        border-radius: 999px;
+        background-image: linear-gradient(135deg, #c8873a, #b06f28);
+        color: #ffffff;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 4.4cqw;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 5px 12px rgba(150, 90, 30, 0.3);
+        transition: transform 0.2s ease;
+    }
+    .boton:active {
+        transform: scale(0.96);
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const tarjeta = document.getElementById("tarjeta-ceremonia");
+        if (!tarjeta) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const linea = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 82%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        linea
+            // La tarjeta sube y se asienta
+            .fromTo(
+                tarjeta,
+                { opacity: 0, y: 40, scale: 0.95 },
+                { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: "power2.out" },
+            )
+            // La iglesia aparece desde abajo
+            .fromTo(
+                tarjeta.querySelector(".dibujo"),
+                { opacity: 0, y: 20, scale: 0.85 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 1,
+                    ease: "back.out(1.6)",
+                },
+                0.35,
+            )
+            // "Iglesia" se escribe de izquierda a derecha
+            .fromTo(
+                tarjeta.querySelector(".titulo"),
+                { opacity: 0, clipPath: "inset(-30% 100% -30% -10%)" },
+                {
+                    opacity: 1,
+                    clipPath: "inset(-30% -10% -30% -10%)",
+                    duration: 1.1,
+                    ease: "power2.inOut",
+                },
+                0.6,
+            )
+            // Hora, lugar y botón, uno tras otro
+            .fromTo(
+                tarjeta.querySelectorAll(".hora, .lugar, .boton"),
+                { opacity: 0, y: 14 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                0.9,
+            );
+    });
+</script>

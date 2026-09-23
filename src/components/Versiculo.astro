@@ -1,0 +1,180 @@
+---
+// src/components/Versiculo.astro
+// Tarjeta blanca de esquinas redondeadas con sombra suave, la paloma
+// arriba y la frase en mayúsculas doradas, partida en cuatro renglones.
+//
+// Los renglones van separados a mano, uno por elemento, para que el corte
+// quede como en el diseño en cualquier celular.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const renglones = [
+    "En este día tan especial la",
+    "luz de Dios se encenderá",
+    "en mi corazón para iluminar",
+    "todo el camino de mi vida",
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="versiculo" class="seccion">
+    <div id="caja-versiculo" class="caja">
+        <img
+            src="/imagenes/paloma.png"
+            alt=""
+            width="457"
+            height="442"
+            aria-hidden="true"
+            class="paloma"
+        />
+
+        <p class="texto">
+            {renglones.map((r) => <span>{r}</span>)}
+        </p>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding: 6% 0 8%;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    /*
+       container-type: la frase se mide contra la tarjeta y no contra la
+       pantalla, así los cuatro renglones entran igual en cualquier
+       celular.
+    */
+    .caja {
+        position: relative;
+        width: 86%;
+        margin: 0 auto;
+        container-type: inline-size;
+        padding: 9cqw 4cqw 10cqw;
+        border-radius: 12cqw;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow:
+            0 10px 22px rgba(0, 0, 0, 0.14),
+            0 2px 6px rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .paloma {
+        display: block;
+        width: 13cqw;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /*
+       El tamaño está pensado para que el renglón más largo ("en mi
+       corazón para iluminar") entre en uno solo con un poco de aire.
+    */
+    .texto {
+        margin-top: 6cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 5cqw;
+        line-height: 1.55;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #c07d2c;
+    }
+
+    .texto span {
+        display: block;
+        white-space: nowrap;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const caja = document.getElementById("caja-versiculo");
+        if (!caja) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const paloma = caja.querySelector(".paloma");
+        const renglones = caja.querySelectorAll(".texto span");
+
+        /*
+           Arranca pausada, igual que NombresFlores. Con portada, la larga
+           el sello de ingreso: así esta tarjeta entra al mismo tiempo que
+           la primera sección, y no se consume sola mientras la portada
+           todavía la tapa. Sin portada, la larga el scroll.
+        */
+        const linea = gsap.timeline({ paused: true });
+
+        linea
+            // La tarjeta sube y se asienta
+            .fromTo(
+                caja,
+                { opacity: 0, y: 30, scale: 0.95 },
+                { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power2.out" },
+            )
+            // La paloma baja volando
+            .fromTo(
+                paloma,
+                { opacity: 0, y: -18, rotate: -12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotate: 0,
+                    duration: 0.9,
+                    ease: "back.out(1.8)",
+                },
+                0.4,
+            )
+            // Los renglones, uno tras otro
+            .fromTo(
+                renglones,
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                0.6,
+            );
+
+        function arrancar() {
+            // La portada bloqueaba el scroll: las medidas de la carga ya
+            // no valen
+            ScrollTrigger.refresh();
+            linea.restart();
+        }
+
+        const portada = document.getElementById("portada-section");
+
+        if ((window as any).portadaAbierta) {
+            arrancar();
+        } else if (portada) {
+            window.addEventListener("portada-abierta", arrancar, {
+                once: true,
+            });
+        } else {
+            ScrollTrigger.create({
+                trigger: caja,
+                start: "top 85%",
+                onEnter: () => linea.restart(),
+                onLeaveBack: () => linea.pause(0),
+            });
+        }
+    });
+</script>

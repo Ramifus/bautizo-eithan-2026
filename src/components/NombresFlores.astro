@@ -1,0 +1,397 @@
+---
+// src/components/NombresFlores.astro
+// Primera sección después de la portada: la foto del bebé (el marco dorado
+// y las espigas ya vienen dentro de foto.webp), debajo "Mi bautizo", el
+// nombre en cursiva, los apellidos y la paloma. Abajo a la derecha asoman
+// las flores (florlateral.png) y al centro tres flechas invitan a bajar.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const foto = "/imagenes/foto1.webp";
+const alt = "Eithan vestido de blanco";
+const anuncio = "Mi bautizo";
+const nombre = "Eithan";
+const apellidos = "Alcocer Salvatierra";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="sobre-novios" class="seccion">
+    <div class="columna">
+        <!-- Foto con su marco -->
+        <div id="nf-foto-caja" class="foto-caja">
+            <img
+                id="nf-foto"
+                src={foto}
+                alt={alt}
+                width="1080"
+                height="1122"
+                class="foto"
+            />
+        </div>
+
+        <!-- Textos -->
+        <div id="nf-texto" class="texto">
+            <p id="nf-anuncio" class="anuncio">{anuncio}</p>
+            <p id="nf-nombre" class="nombre">{nombre}</p>
+            <p id="nf-apellidos" class="apellidos">{apellidos}</p>
+            <!-- La paloma al centro y las flores a su derecha -->
+            <div class="fila-paloma">
+                <img
+                    src="/imagenes/paloma.png"
+                    alt=""
+                    aria-hidden="true"
+                    width="457"
+                    height="442"
+                    id="nf-paloma"
+                    class="paloma"
+                />
+                <img
+                    id="nf-flores"
+                    src="/imagenes/florlateral.png"
+                    alt=""
+                    aria-hidden="true"
+                    width="976"
+                    height="1051"
+                    class="flores"
+                />
+            </div>
+        </div>
+
+        <!-- Flechas: deslizá hacia abajo -->
+        <div id="nf-flechas" class="flechas" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</section>
+
+<style>
+    /*
+       El blanco va declarado como degradado y no como color: el modo
+       oscuro forzado oscurece colores pero respeta las imágenes.
+    */
+    .seccion {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    /* container-type: las medidas en cqw son % del ancho de la columna */
+    .columna {
+        position: relative;
+        z-index: 1;
+        container-type: inline-size;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 4cqw;
+        padding-bottom: 6cqw;
+    }
+
+    /* ── Foto ───────────────────────────────────────────────── */
+    .foto-caja {
+        width: 90cqw;
+    }
+    .foto {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* ── Textos ─────────────────────────────────────────────── */
+    .texto {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 3cqw;
+    }
+
+    .anuncio {
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 6.2cqw;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #b68548;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .nombre {
+        margin-top: 6cqw;
+        font-family: "Great Vibes", cursive;
+        font-size: 15cqw;
+        line-height: 1.1;
+        color: #b68548;
+    }
+
+    .apellidos {
+        margin-top: 3cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 4.4cqw;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #b68548;
+    }
+
+    /* Ocupa todo el ancho para que las flores lleguen al borde derecho */
+    .fila-paloma {
+        position: relative;
+        width: 100cqw;
+        margin-top: 5cqw;
+        display: flex;
+        justify-content: center;
+    }
+
+    .paloma {
+        width: 22cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ── Flores: a la derecha de la paloma, centradas con ella ── */
+    .flores {
+        position: absolute;
+        right: -4cqw;
+        top: 50%;
+        width: 38cqw;
+        /* La mitad de su alto (38cqw · 1051/976): queda centrada */
+        margin-top: -20.5cqw;
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ── Flechas ────────────────────────────────────────────── */
+    .flechas {
+        margin-top: 4cqw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .flechas span {
+        display: block;
+        width: 4.2cqw;
+        height: 4.2cqw;
+        margin-top: -1.6cqw;
+        border-right: 2px solid #b68548;
+        border-bottom: 2px solid #b68548;
+        transform: rotate(45deg);
+        opacity: 0;
+        animation: deslizar 1.8s ease-in-out infinite;
+    }
+    .flechas span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .flechas span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes deslizar {
+        0% {
+            opacity: 0;
+            transform: translateY(-6px) rotate(45deg);
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(6px) rotate(45deg);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .flechas span {
+            animation: none;
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const caja = document.getElementById("nf-foto-caja");
+        const texto = document.getElementById("nf-texto");
+        const anuncio = document.getElementById("nf-anuncio");
+        const nombre = document.getElementById("nf-nombre");
+        const apellidos = document.getElementById("nf-apellidos");
+        const paloma = document.getElementById("nf-paloma");
+        const flores = document.getElementById("nf-flores");
+        const flechas = document.getElementById("nf-flechas");
+        if (!caja || !texto) return;
+
+        // Sin animación si el visitante pidió menos movimiento
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        // ── Estado inicial: todo escondido hasta que se abra la portada
+        gsap.set(caja, { opacity: 0, scale: 0.8, y: 30, rotate: -4 });
+        gsap.set(anuncio, { opacity: 0, y: 20, letterSpacing: "0.5em" });
+        // El nombre se "escribe" de izquierda a derecha. El recorte tiene
+        // margen de sobra para no morder los rulos de la Great Vibes.
+        gsap.set(nombre, {
+            opacity: 0,
+            clipPath: "inset(-30% 100% -30% -10%)",
+        });
+        gsap.set(apellidos, { opacity: 0, y: 14 });
+        gsap.set(paloma, { opacity: 0, x: -140, y: 60, rotate: -25, scale: 0.6 });
+        gsap.set(flores, { opacity: 0, x: 80, rotate: 12 });
+        gsap.set(flechas, { opacity: 0, y: -10 });
+
+        /*
+           Arranca pausada. Con portada la larga el sello de ingreso (un
+           ScrollTrigger se consumiría solo con la portada todavía encima);
+           sin portada la larga el scroll.
+        */
+        const linea = gsap.timeline({ paused: true, delay: 0.2 });
+
+        linea
+            // 1 · la foto aparece girando apenas y se acomoda
+            .to(caja, {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                rotate: 0,
+                duration: 1.4,
+                ease: "back.out(1.4)",
+            })
+            // 2 · "Mi bautizo" se junta desde letras separadas
+            .to(
+                anuncio,
+                {
+                    opacity: 1,
+                    y: 0,
+                    letterSpacing: "0.06em",
+                    duration: 1.1,
+                    ease: "power3.out",
+                },
+                0,
+            )
+            // 3 · el nombre se escribe
+            .to(
+                nombre,
+                {
+                    opacity: 1,
+                    clipPath: "inset(-30% -10% -30% -10%)",
+                    duration: 1.6,
+                    ease: "power2.inOut",
+                    // Ya escrito, el nombre queda respirando apenas
+                    onComplete: () => {
+                        gsap.to(nombre, {
+                            scale: 1.04,
+                            duration: 2.4,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: "sine.inOut",
+                        });
+                    },
+                },
+                0,
+            )
+            // 4 · los apellidos
+            .to(
+                apellidos,
+                { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" },
+                0,
+            )
+            // 5 · la paloma entra volando desde la izquierda
+            .to(
+                paloma,
+                {
+                    opacity: 1,
+                    x: 0,
+                    y: 0,
+                    rotate: 0,
+                    scale: 1,
+                    duration: 1.8,
+                    ease: "power2.out",
+                    onComplete: volar,
+                },
+                0,
+            )
+            // 6 · las flores se abren desde la derecha
+            .to(
+                flores,
+                {
+                    opacity: 1,
+                    x: 0,
+                    rotate: 0,
+                    duration: 1.5,
+                    ease: "power3.out",
+                },
+                0,
+            )
+            .to(
+                flechas,
+                { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+                0,
+            );
+
+        /*
+           La paloma sigue volando: sube y baja, se mece y aletea
+           (se aplasta un poco a lo alto, como batiendo las alas).
+        */
+        function volar() {
+            if (!paloma) return;
+            gsap.to(paloma, {
+                y: -12,
+                x: 6,
+                duration: 1.6,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+            });
+            gsap.to(paloma, {
+                rotate: -6,
+                duration: 2.2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+            });
+            gsap.to(paloma, {
+                scaleY: 0.9,
+                duration: 0.35,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+            });
+        }
+
+        function arrancar() {
+            // La portada bloqueaba el scroll: las medidas de la carga ya
+            // no valen
+            ScrollTrigger.refresh();
+            linea.restart();
+        }
+
+        const portada = document.getElementById("portada-section");
+
+        if ((window as any).portadaAbierta) {
+            arrancar();
+        } else if (portada) {
+            window.addEventListener("portada-abierta", arrancar, {
+                once: true,
+            });
+        } else {
+            ScrollTrigger.create({
+                trigger: caja,
+                start: "top 78%",
+                onEnter: () => linea.restart(),
+                onLeaveBack: () => linea.pause(0),
+            });
+        }
+    });
+</script>

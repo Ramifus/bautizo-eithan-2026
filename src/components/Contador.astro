@@ -1,0 +1,210 @@
+---
+// src/components/Contador.astro
+// Tarjeta blanca de esquinas redondeadas con sombra suave: "Faltan" en
+// Great Vibes dorada y debajo la cuenta regresiva en cuatro columnas
+// —días, horas, minutos, segundos— con el número grande y el rótulo chico.
+//
+// Los números van en Cormorant con cifras parejas (lining-nums): la
+// Cormorant las dibuja "antiguas" por defecto y el número cambiaría de
+// alto cada segundo.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Faltan";
+// El bautizo: sábado 31 de octubre de 2026, 4 de la tarde, hora de
+// Bolivia (-04:00). Con la zona escrita, la cuenta da bien aunque el
+// invitado abra la invitación desde otro país.
+const fechaEvento = "2026-10-31T16:00:00-04:00";
+
+const casillas = [
+    { id: "dias", rotulo: "Días" },
+    { id: "horas", rotulo: "Hrs." },
+    { id: "minutos", rotulo: "Min." },
+    { id: "segundos", rotulo: "Seg." },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="contador-boda" class="seccion">
+    <div id="tarjeta-contador" class="tarjeta">
+        <p class="titulo">{titulo}</p>
+
+        <div id="contador" class="casillas" data-fecha={fechaEvento}>
+            {
+                casillas.map((casilla) => (
+                    <div class="casilla">
+                        <span data-campo={casilla.id} class="numero">
+                            00
+                        </span>
+                        <span class="rotulo">{casilla.rotulo}</span>
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        container-type: inline-size;
+        position: relative;
+        width: 100%;
+        padding: 8% 0;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .tarjeta {
+        width: 84cqw;
+        margin: 0 auto;
+        padding: 9cqw 4cqw 10cqw;
+        border-radius: 11cqw;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        box-shadow:
+            0 10px 22px rgba(0, 0, 0, 0.14),
+            0 2px 6px rgba(0, 0, 0, 0.06);
+        text-align: center;
+    }
+
+    /* Great Vibes, sin mayúsculas forzadas ni espaciado: no los tolera */
+    .titulo {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-size: 12cqw;
+        line-height: 1.1;
+        color: #b8742a;
+    }
+
+    /* ── Las cuatro columnas ────────────────────────────────── */
+    .casillas {
+        display: flex;
+        justify-content: center;
+        gap: 6cqw;
+        margin-top: 5cqw;
+    }
+
+    .casilla {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 11cqw;
+    }
+
+    .numero {
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 8cqw;
+        line-height: 1;
+        letter-spacing: 0.06em;
+        color: #b8742a;
+        /* Cifras parejas y del mismo ancho: el número no baila */
+        font-variant-numeric: lining-nums tabular-nums;
+        font-feature-settings:
+            "lnum" 1,
+            "tnum" 1;
+    }
+
+    .rotulo {
+        margin-top: 3.5cqw;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 3.8cqw;
+        line-height: 1;
+        color: #b8742a;
+        white-space: nowrap;
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const caja = document.getElementById("contador");
+        const tarjeta = document.getElementById("tarjeta-contador");
+        if (!caja || !tarjeta) return;
+
+        // ── La cuenta ───────────────────────────────────────────
+        const destino = new Date(caja.dataset.fecha ?? "").getTime();
+        const campo = (n: string) =>
+            caja.querySelector<HTMLElement>(`[data-campo="${n}"]`);
+        const dias = campo("dias");
+        const horas = campo("horas");
+        const minutos = campo("minutos");
+        const segundos = campo("segundos");
+
+        const dosDigitos = (n: number) => n.toString().padStart(2, "0");
+
+        const refrescar = () => {
+            const falta = destino - Date.now();
+
+            if (!isFinite(destino)) return;
+
+            // Ya pasó la fecha: todo en cero, y no hace falta seguir
+            if (falta <= 0) {
+                if (dias) dias.textContent = "00";
+                if (horas) horas.textContent = "00";
+                if (minutos) minutos.textContent = "00";
+                if (segundos) segundos.textContent = "00";
+                clearInterval(reloj);
+                return;
+            }
+
+            const s = Math.floor(falta / 1000);
+            if (dias) dias.textContent = dosDigitos(Math.floor(s / 86400));
+            if (horas) horas.textContent = dosDigitos(Math.floor(s / 3600) % 24);
+            if (minutos)
+                minutos.textContent = dosDigitos(Math.floor(s / 60) % 60);
+            if (segundos) segundos.textContent = dosDigitos(s % 60);
+        };
+
+        refrescar();
+        const reloj = setInterval(refrescar, 1000);
+
+        // ── Entrada ─────────────────────────────────────────────
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const linea = gsap.timeline({
+            scrollTrigger: {
+                trigger: tarjeta,
+                start: "top 85%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        linea
+            // La tarjeta sube y se asienta
+            .fromTo(
+                tarjeta,
+                { opacity: 0, y: 30, scale: 0.95 },
+                { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power2.out" },
+            )
+            // "Faltan" se escribe de izquierda a derecha. El recorte tiene
+            // margen para no morder los rulos de la Great Vibes.
+            .fromTo(
+                tarjeta.querySelector(".titulo"),
+                { opacity: 0, clipPath: "inset(-30% 100% -30% -10%)" },
+                {
+                    opacity: 1,
+                    clipPath: "inset(-30% -10% -30% -10%)",
+                    duration: 1.1,
+                    ease: "power2.inOut",
+                },
+                0.3,
+            )
+            // Y las columnas suben una tras otra
+            .fromTo(
+                tarjeta.querySelectorAll(".casilla"),
+                { opacity: 0, y: 16 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    stagger: 0.12,
+                    ease: "power2.out",
+                },
+                0.6,
+            );
+    });
+</script>

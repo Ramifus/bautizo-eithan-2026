@@ -1,0 +1,233 @@
+---
+// src/components/Dedicatoria.astro
+// Arriba, sobre blanco, la invitación en mayúsculas doradas y el ramo de
+// lirios (florcentro.png). El ramo se apoya sobre la franja dorada de
+// abajo, que lleva la oración en blanco.
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const invitacion = [
+    "Se complacen en invitarte",
+    "al bautizo de su amado hijo",
+];
+const oracion = [
+    "Jesús hoy me presento",
+    "ante ti, para ser bañado por",
+    "la gracia de tu amor",
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="dedicatoria" class="seccion">
+    <div id="bloque-dedicatoria" class="bloque">
+        <!-- Separador: la aparta de la sección de los padres -->
+        <div class="separador" aria-hidden="true">
+            <span class="raya"></span>
+            <span class="rombo"></span>
+            <span class="raya"></span>
+        </div>
+
+        <p class="invitacion">
+            {invitacion.map((r) => <span>{r}</span>)}
+        </p>
+
+        <img
+            src="/imagenes/florcentro.png"
+            alt=""
+            width="1071"
+            height="531"
+            aria-hidden="true"
+            class="flores"
+        />
+
+        <div class="franja">
+            <p class="oracion">
+                {oracion.map((r) => <span>{r}</span>)}
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        padding-top: 6%;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    /* Con container-type, 1cqw es el 1% del ancho de la columna */
+    .bloque {
+        container-type: inline-size;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* ── Separador: raya · rombo · raya, en dorado ── */
+    .separador {
+        display: flex;
+        align-items: center;
+        gap: 3cqw;
+        margin-bottom: 7cqw;
+    }
+    .raya {
+        display: block;
+        width: 24cqw;
+        height: 1px;
+        background-image: linear-gradient(90deg, transparent, #c07d2c);
+    }
+    .raya:last-child {
+        background-image: linear-gradient(90deg, #c07d2c, transparent);
+    }
+    .rombo {
+        display: block;
+        width: 2.2cqw;
+        height: 2.2cqw;
+        border: 1px solid #c07d2c;
+        transform: rotate(45deg);
+    }
+
+    .invitacion,
+    .oracion {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-weight: 600;
+        font-size: 5cqw;
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .invitacion {
+        color: #c07d2c;
+    }
+
+    .invitacion span,
+    .oracion span {
+        display: block;
+        white-space: nowrap;
+    }
+
+    /*
+       El ramo se mete un poco dentro de la franja: el margen negativo lo
+       baja y el z-index lo deja por encima del dorado.
+    */
+    .flores {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 54cqw;
+        height: auto;
+        margin-top: 3cqw;
+        margin-bottom: -5cqw;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /*
+       Dorado con brillo en diagonal. Va como imagen (degradado), que el
+       modo oscuro forzado respeta.
+    */
+    .franja {
+        width: 100%;
+        padding: 16cqw 6cqw 14cqw;
+        background-image: linear-gradient(
+            125deg,
+            #b8823f 0%,
+            #d9aa68 30%,
+            #f0cf9a 50%,
+            #d6a664 70%,
+            #b07a38 100%
+        );
+    }
+
+    .oracion {
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(120, 70, 20, 0.35);
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-dedicatoria");
+        if (!bloque) return;
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+
+        const separador = bloque.querySelector(".separador");
+        const invitacion = bloque.querySelectorAll(".invitacion span");
+        const flores = bloque.querySelector(".flores");
+        const franja = bloque.querySelector(".franja");
+        const oracion = bloque.querySelectorAll(".oracion span");
+
+        const linea = gsap.timeline({
+            scrollTrigger: {
+                trigger: bloque,
+                start: "top 82%",
+                toggleActions: "play none none reset",
+            },
+        });
+
+        linea
+            // El separador se abre desde el centro
+            .fromTo(
+                separador,
+                { opacity: 0, scaleX: 0.4 },
+                { opacity: 1, scaleX: 1, duration: 0.9, ease: "power2.out" },
+            )
+            .fromTo(
+                invitacion,
+                { opacity: 0, y: 12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                0.2,
+            )
+            // El ramo se abre desde abajo
+            .fromTo(
+                flores,
+                { opacity: 0, scale: 0.85, y: 20 },
+                {
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                    duration: 1.2,
+                    ease: "back.out(1.4)",
+                },
+                0.3,
+            )
+            .fromTo(
+                franja,
+                { opacity: 0 },
+                { opacity: 1, duration: 1, ease: "power2.out" },
+                0.4,
+            )
+            .fromTo(
+                oracion,
+                { opacity: 0, y: 12 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power2.out",
+                },
+                0.9,
+            );
+    });
+</script>
